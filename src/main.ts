@@ -3,6 +3,9 @@ import path from 'node:path';
 import { startTask } from './task';
 import { ipcMain } from 'electron-better-ipc';
 import { logger } from './logger';
+import { updateElectronApp } from 'update-electron-app';
+
+updateElectronApp()
 
 const createWindow = () => {
   startTask();

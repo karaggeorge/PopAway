@@ -2,7 +2,11 @@
   "name": "PopAway",
   "productName": "PopAway",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Automatically dismiss macOS Control Center popups",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/karaggeorge/PopAway.git"
+  },
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",

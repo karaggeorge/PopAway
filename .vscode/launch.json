@@ -1,0 +1,22 @@
+{
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:PopAway}",
+      "name": "Debug popaway",
+      "program": "${workspaceFolder:PopAway}/.build/debug/popaway",
+      "preLaunchTask": "swift: Build Debug popaway"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:PopAway}",
+      "name": "Release popaway",
+      "program": "${workspaceFolder:PopAway}/.build/release/popaway",
+      "preLaunchTask": "swift: Build Release popaway"
+    }
+  ]
+}

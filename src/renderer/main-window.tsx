@@ -3,7 +3,7 @@ import { Button } from "./components/ui/button"
 import { Switch } from "./components/ui/switch"
 import { Card, CardContent } from "./components/ui/card"
 import { ScrollArea } from "./components/ui/scroll-area"
-import { CircleCheckBig, Folder, Power } from "lucide-react"
+import { CircleCheckBig, Folder, Logs, MessageCircleX } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./components/ui/tooltip"
 
 interface Popup {
@@ -26,6 +26,9 @@ interface Main {
   requestAccessibility: () => void;
   onFocus: (callback: () => void) => void;
   ready: () => void;
+  openLogFile: () => void;
+  restart: () => Promise<void>;
+  onStoreChange: (callback: () => void) => () => void;
 }
 
 interface MainState {
@@ -36,7 +39,6 @@ interface MainState {
 }
 
 export default function MainWindow() {
-  console.log(window.main);
   const main = (window as unknown as {main: Main}).main;
 
   const [state, setState] = useState<MainState>({
@@ -55,6 +57,15 @@ export default function MainWindow() {
   }, []);
 
   useEffect(() => {
+    return main.onStoreChange(() => {
+      setState(prevState => ({
+        ...prevState,
+        popups: main.getStore().popups,
+      }));
+    })
+  }, [])
+
+  useEffect(() => {
     (async () => {
       setState({
         startAtLogin: await main.startAtLogin,
@@ -63,9 +74,9 @@ export default function MainWindow() {
         popups: main.getStore().popups,
       })
 
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         main.ready();
-      });
+      }, 1000);
     })();
   }, [])
 
@@ -87,6 +98,7 @@ export default function MainWindow() {
         }
       }
     }));
+    main.restart();
   };
 
   return (
@@ -94,7 +106,7 @@ export default function MainWindow() {
       {/* Logo and Title Section */}
       <div className="flex flex-col items-center mb-6">
         <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-blue-950 to-purple-900 flex items-center justify-center mb-4">
-          <Power className="w-12 h-12 text-blue-300" />
+          <MessageCircleX className="w-12 h-12 text-blue-300" />
         </div>
         <h1 className="text-2xl font-bold text-zinc-200">PopAway</h1>
         <p className="text-sm text-zinc-400 text-center mt-2">
@@ -172,7 +184,7 @@ export default function MainWindow() {
 
             {/* Closed Popups List */}
             <div>
-              <p className="font-medium text-zinc-300 mb-2">Popups</p>
+              <p className="font-medium text-zinc-300 mb-2">Popups to block</p>
               <Card className="bg-zinc-900/30 border-zinc-800">
                 <ScrollArea className="h-[180px] rounded-md">
                   {popups.length > 0 ? (
@@ -203,9 +215,10 @@ export default function MainWindow() {
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent className="flex flex-col">
-                                {popup.contents.map(item => {
+                                {/* {popup.contents.map(item => {
                                   return <p className="max-w-[250px] truncate">{item}</p>
-                                })}
+                                })} */}
+                                {popup.blocking ? 'Blocked' : 'Seen'} {popup.blocking ? popup.blocked : popup.count} times, last on {new Date(popup.last).toDateString()} at {new Date(popup.last).toLocaleTimeString()}
                               </TooltipContent>
                             </Tooltip>
                             <div className="flex items-center">
@@ -229,15 +242,26 @@ export default function MainWindow() {
               </Card>
             </div>
 
-            {/* Open History File Button */}
+            <div className="flex flex-row items-center w-full gap-4">
+              {/* Open History File Button */}
+              <Button
+                variant="outline"
+                className="flex-1 border-zinc-800 bg-zinc-900/50 text-zinc-300 hover:bg-zinc-800 hover:text-blue-300"
+                onClick={handleOpenHistoryFile}
+              >
+                <Folder className="w-4 h-4 mr-2" />
+                Open History File
+              </Button>
+              {/* Open History File Button */}
             <Button
               variant="outline"
-              className="w-full border-zinc-800 bg-zinc-900/50 text-zinc-300 hover:bg-zinc-800 hover:text-blue-300"
-              onClick={handleOpenHistoryFile}
+              className="flex-1 border-zinc-800 bg-zinc-900/50 text-zinc-300 hover:bg-zinc-800 hover:text-blue-300"
+              onClick={main.openLogFile}
             >
-              <Folder className="w-4 h-4 mr-2" />
-              Open History File
+              <Logs className="w-4 h-4 mr-2" />
+              Open Logs
             </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -273,7 +297,7 @@ export default function MainWindow() {
           <div className="mt-1">
             Made by{" "}
             <a
-              href="https://github.com/karaggeorge"
+              href="https://x.com/gkaragkiaouris"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-400 hover:text-blue-300 hover:underline"

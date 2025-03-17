@@ -1,13 +1,20 @@
-import { app } from 'electron';
+import { app, shell } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
+import { ipcMain } from 'electron-better-ipc';
 
-let logFile: string | undefined;
+const logFile = path.join(app.getPath('logs'), 'popaway.log');
+
+app.whenReady().then(() => {
+  ipcMain.answerRenderer('log-file', () => logFile);
+
+  ipcMain.answerRenderer('open-log-file', () => {
+    shell.openPath(logFile);
+  });
+});
 
 export const logger = {
-  log: (...messages: string[]) => {
-    logFile = logFile ?? path.join(app.getPath('logs'), 'popaway.log');
-    
+  log: (...messages: unknown[]) => {
     if (import.meta.env.DEV) {
       console.log(...messages);
     }

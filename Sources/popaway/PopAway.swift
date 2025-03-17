@@ -34,6 +34,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let appRef = AXUIElementCreateApplication(appPID)
 
     let callback: AXObserverCallback = { observer, element, notification, refcon in
+      // guard let refcon = refcon else {
+      //   print("Failed to get refcon \(refcon)")
+      //   return
+      // }
+
+      // let mySelf = Unmanaged<AppDelegate>.fromOpaque(refcon).takeUnretainedValue()
       var role: CFTypeRef?
       AXUIElementCopyAttributeValue(element, kAXRoleAttribute as CFString, &role)
 
@@ -91,7 +97,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     AXObserverCreate(controlCenter.processIdentifier, callback, &self.observer)
 
     if let observer = self.observer {
-      AXObserverAddNotification(observer, appRef, kAXCreatedNotification as CFString, nil)
+      AXObserverAddNotification(observer, appRef, kAXCreatedNotification as CFString, UnsafeMutableRawPointer(Unmanaged.passRetained(self).toOpaque()))
       CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(observer), .defaultMode)
     } else {
       print("Failed to create observer")

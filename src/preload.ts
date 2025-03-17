@@ -1,8 +1,8 @@
-import { contextBridge, app } from "electron";
+import { contextBridge } from "electron";
 import { ipcRenderer } from 'electron-better-ipc'
 import Store from 'electron-store';
 
-const store = new Store({ name: 'task-history' })
+const store = new Store({ name: 'task-history', watch: true });
 
 contextBridge.exposeInMainWorld('main', {
   startAtLogin: ipcRenderer.callMain('start-at-login'),
@@ -15,6 +15,9 @@ contextBridge.exposeInMainWorld('main', {
   setStore(key: string, value: unknown) {
     store.set(key, value);
   },
+  onStoreChange(callback: () => void) {
+    return ipcRenderer.answerMain('store-change', callback);
+  },
   openHistoryFile: () => {
     store.openInEditor();
   },
@@ -24,4 +27,7 @@ contextBridge.exposeInMainWorld('main', {
     return ipcRenderer.answerMain('window-focus', callback);
   },
   ready: () => ipcRenderer.callMain('ready'),
+  restart: () => ipcRenderer.callMain('restart'),
+  logFile: ipcRenderer.callMain('log-file'),
+  openLogFile: () => ipcRenderer.callMain('open-log-file'),
 });

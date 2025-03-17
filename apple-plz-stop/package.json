@@ -1,0 +1,26 @@
+{
+  "name": "apple-plz-stop",
+  "version": "1.0.5",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "apple-plz-stop": "cli.js",
+    "aps": "cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "index.js",
+    "cli",
+    "cli.js"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "execa": "^9.5.2",
+    "meow": "^13.2.0"
+  }
+}

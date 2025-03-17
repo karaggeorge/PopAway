@@ -1,4 +1,4 @@
-import { app, BrowserWindow, systemPreferences } from 'electron';
+import { app, BrowserWindow, shell, systemPreferences } from 'electron';
 import path from 'node:path';
 import { startTask } from './task';
 import { ipcMain } from 'electron-better-ipc';
@@ -55,17 +55,17 @@ const createWindow = () => {
     }
   });
 
+  mainWindow.webContents.setWindowOpenHandler((details) => {
+    shell.openExternal(details.url); // Open URL in user's browser.
+    return { action: "deny" }; // Prevent the app from opening the URL.
+  })
+
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
-
-  logger.log('Dir', __dirname);
-  logger.log('File', __filename);
-  logger.log('cwd', process.cwd());
-  logger.log('env', JSON.stringify(process.argv), JSON.stringify(process.versions));
 
   if (import.meta.env.DEV) {
     // Open the DevTools.
@@ -86,6 +86,9 @@ app.on('ready', () => {
   });
 
   logger.log('App started');
+  
+  app.dock.hide();
+
   createWindow();
 });
 

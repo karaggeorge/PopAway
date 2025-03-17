@@ -6,6 +6,7 @@ import { MakerRpm } from '@electron-forge/maker-rpm';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
+import * as path from 'node:path';
 
 const config: ForgeConfig = {
   packagerConfig: {
@@ -14,7 +15,47 @@ const config: ForgeConfig = {
       unpack: '**/{.**,**}/**/popaway-cli',
     },
     icon: 'images/icon',
-    // osxSign: {},
+    osxSign: {
+      optionsForFile: (filePath) => {
+        if (filePath.endsWith('PopAway.app')) {
+          return {
+            entitlements: path.resolve(__dirname, './entitlements.plist'),
+            hardenedRuntime: true,
+          }
+        }
+        if (filePath.endsWith('PopAway Helper (GPU).app')) {
+          return {
+            entitlements: path.resolve(__dirname, './entitlements.gpu.plist'),
+            hardenedRuntime: true,
+          }
+        }
+        if (filePath.endsWith('PopAway Helper (Plugin).app')) {
+          return {
+            entitlements: path.resolve(__dirname, './entitlements.plugin.plist'),
+            hardenedRuntime: true,
+          }
+        }
+        if (filePath.endsWith('PopAway Helper (Renderer).app')) {
+          return {
+            entitlements: path.resolve(__dirname, './entitlements.renderer.plist'),
+            hardenedRuntime: true,
+          }
+        }
+        if (filePath.endsWith('PopAway Helper.app')) {
+          return {
+            entitlements: path.resolve(__dirname, './entitlements.renderer.plist'),
+            hardenedRuntime: true,
+          }
+        }
+        return {
+          entitlements: path.resolve(__dirname, './entitlements.plist'),
+          hardenedRuntime: true,
+        }
+      },
+    },
+    osxNotarize: {
+      keychainProfile: 'gkaragkiaouris'
+    }
   },
   rebuildConfig: {},
   makers: [new MakerSquirrel({}), new MakerZIP({}, ['darwin']), new MakerRpm({}), new MakerDeb({})],
